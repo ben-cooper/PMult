@@ -15,13 +15,19 @@ typedef struct {
 
 explore_range_args *init_explore_range_args(unsigned long long int min,
 					    unsigned long long int max,
-					    unsigned long int thread)
+					    unsigned long int thread,
+					    unsigned long int num_threads)
 {
 	/* returns pointer to explore_range_args struct */
 	explore_range_args *ret_val = malloc(sizeof(explore_range_args));
+	
+	/* dividing the range into equal parts for each thread */
+	unsigned long long int range_min = min + (max / num_threads) * thread;
+	unsigned long long int range_max = ((thread +1) == num_threads) ? max:
+										min + (max / num_threads) * (thread + 1);
 
-	ret_val->min = min;
-	ret_val->max = max;
+	ret_val->min = range_min;
+	ret_val->max = range_max;
 	ret_val->thread = thread;
 
 	return ret_val;
@@ -70,12 +76,14 @@ void *explore_range(void *thread_args)
 
 	printf("Min: %llu, Max: %llu, Thread: %u\n", args->min, args->max,
 	       args->thread);
+	//printf("DEBUG: %llu, %llu\n", best_numbers[args->thread], args->min);
 
 	/* finding number with highest multiplicative persistence within given range */
-	for (current = args->min; current < args->max; current++) {
+	for (current = args->min; current <= args->max; current++) {
 		current_levels = multiplicative_persistence(current);
 
-		if (current_levels > best_levels[args->thread]) {
+		/* if number found with more levels or number hasn't been set */	
+		if ((current_levels > best_levels[args->thread]) || (best_numbers[args->thread] < args->min)) {
 			best_numbers[args->thread] = current;
 			best_levels[args->thread] = current_levels;
 		}
@@ -88,14 +96,6 @@ void *explore_range(void *thread_args)
 
 int main(int argc, char **argv)
 {
-	/*
-	 * best is the current best number for persistent multiplication
-	 * best_levels is how many rounds the best number passed current is
-	 * the current number being tested current_levels is the number of
-	 * rounds the current number passes max is the maximum number to test
-	 * min is the minimum number to test 
-	 */
-
 	unsigned long long int max;
 	unsigned long long int min;
 	unsigned long long int current;
@@ -141,12 +141,7 @@ int main(int argc, char **argv)
 
 		/* creating threads */
 		for (i = 0; i < num_threads; i++) {
-			args =
-			    init_explore_range_args(min +
-						    (max / num_threads) * i,
-						    (max / num_threads) * (i +
-									   1) + (max % num_threads),
-						    i);
+			args = init_explore_range_args(min, max, i, num_threads);
 			if ((ret_val =
 			     pthread_create(threads + i, NULL, explore_range,
 					    args))) {
@@ -159,7 +154,8 @@ int main(int argc, char **argv)
 		for (i = 0; i < num_threads; i++) {
 			pthread_join(threads[i], NULL);
 			printf("Thread %lu complete!\n", i);
-			if (best_levels[i] > best_level) {
+			if ((best_levels[i] > best_level) || (best < min))
+			{
 				best = best_numbers[i];
 				best_level = best_levels[i];
 			}
