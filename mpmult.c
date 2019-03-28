@@ -22,9 +22,9 @@ explore_range_args *init_explore_range_args(unsigned long long int min,
 	explore_range_args *ret_val = malloc(sizeof(explore_range_args));
 	
 	/* dividing the range into equal parts for each thread */
-	unsigned long long int range_min = min + (max / num_threads) * thread;
+	unsigned long long int range_min = min + ((max - min) / num_threads) * thread;
 	unsigned long long int range_max = ((thread +1) == num_threads) ? max:
-										min + (max / num_threads) * (thread + 1);
+										min + ((max - min) / num_threads) * (thread + 1);
 
 	ret_val->min = range_min;
 	ret_val->max = range_max;
