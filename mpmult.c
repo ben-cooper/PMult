@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 			    init_explore_range_args(min +
 						    (max / num_threads) * i,
 						    (max / num_threads) * (i +
-									   1),
+									   1) + (max % num_threads),
 						    i);
 			if ((ret_val =
 			     pthread_create(threads + i, NULL, explore_range,
@@ -158,20 +158,20 @@ int main(int argc, char **argv)
 		/* finding best result */
 		for (i = 0; i < num_threads; i++) {
 			pthread_join(threads[i], NULL);
+			printf("Thread %lu complete!\n", i);
 			if (best_levels[i] > best_level) {
 				best = best_numbers[i];
 				best_level = best_levels[i];
 			}
 		}
 
+		/* freeing memory */
+		free(best_numbers);
+		free(best_levels);
+		free(threads);
 	}
 
-	/* freeing memory */
-	free(best_numbers);
-	free(best_levels);
-	free(threads);
-
-	printf("Best Number: %llu\nLevels: %u\n", best, best_level);
+	printf("\n\nBest Number: %llu\nLevels: %u\n", best, best_level);
 
 	return EXIT_SUCCESS;
 }
