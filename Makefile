@@ -21,4 +21,4 @@ clean :
 	rm -f *.o
 
 remove :
-	rm pmult threadpmult forkpmult
+	rm -f pmult threadpmult forkpmult
