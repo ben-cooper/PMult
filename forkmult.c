@@ -89,10 +89,14 @@ void fork_workload(unsigned long long int min,
 		close(fd[0]);
 
 	} else {
+		close(fd[0]);
+		
 		// calculating range
 		local_min = min + ((max - min) / max_threads) * current_thread;
 		local_max = ((current_thread +1) == max_threads) ? max:
 				min + ((max - min) / max_threads) * (current_thread + 1);
+		
+		printf("Min: %llu Max: %llu PID: %d\n", local_min, local_max, getpid());
 		
 		// child finds best value in range
 		for (i = local_min; i <= local_max; i++)
@@ -106,13 +110,13 @@ void fork_workload(unsigned long long int min,
 			}
 		}
 		
-		printf("Min: %llu Max: %llu PID: %d\n", local_min, local_max, getpid());
-		
 		// sending best value back to parent
 		write(fd[1], &local_best, sizeof(local_best));
 		write(fd[1], &local_best_level, sizeof(local_best_level));
 		
 		close(fd[1]);
+		
+		printf("Process %d complete!\n", getpid());
 		exit(EXIT_SUCCESS);
 	}
 }
