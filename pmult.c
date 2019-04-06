@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 		/*
 		 * checking numbers from min to max 
 		 */
-		for (current = min; current < max; current++) {
+		for (current = min; current <= max; current++) {
 			current_levels = multiplicative_persistence(current);
 
 			if (current_levels > best_levels) {
