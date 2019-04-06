@@ -47,8 +47,8 @@ or checking a single number:
 ### Example Usage
 
 Checking all number between 11 and 10000 with 5 threads:
-
-`$ ./forkpmult 11 10000 5
+```
+$ ./forkpmult 11 10000 5
 
 Min: 11 Max: 2008 PID: 12048
 Min: 2008 Max: 4005 PID: 12049
@@ -62,4 +62,5 @@ Process 12052 complete!
 Process 12051 complete!
 
 Best number: 6788
-Levels: 6`
+Levels: 6
+```
