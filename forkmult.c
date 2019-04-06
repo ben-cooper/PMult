@@ -78,7 +78,9 @@ void fork_workload(unsigned long long int min,
 		read(fd[0], &local_best_level, sizeof(local_best_level));
 		
 		// updating best values
-		if (local_best_level > best_level)
+		if ((local_best_level > best_level) || 
+			(best < min) || 
+			((local_best_level == best_level) && (local_best < best)))
 		{
 			best = local_best;
 			best_level = local_best_level;
